@@ -9,8 +9,11 @@ export class MealService {
   constructor(private firestore: AngularFirestore) {}
 
   // Add a new meal
-  addMeal(meal: any) {
-    return this.firestore.collection('meals').add(meal);
+  addMeal(meal: any): Promise<void> {
+    return this.firestore
+      .collection('meals')
+      .add(meal)
+      .then(() => {});
   }
 
   // Get all meals
