@@ -6,8 +6,8 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
+import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-login',
@@ -18,9 +18,9 @@ import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
 })
 export class LoginComponent {
   loginForm: FormGroup;
-  private auth = inject(Auth);
+  private authService = inject(AuthService);
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private router: Router) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
@@ -29,12 +29,11 @@ export class LoginComponent {
 
   onSubmit(): void {
     if (this.loginForm.valid) {
-      signInWithEmailAndPassword(
-        this.auth,
-        this.loginForm.value.email,
-        this.loginForm.value.password
-      )
-        .then(() => console.log('Login successful'))
+      this.authService
+        .SignIn(this.loginForm.value.email, this.loginForm.value.password)
+        .then(() => {
+          this.router.navigate(['/meal/list']);
+        })
         .catch((error) => console.error('Login failed', error));
     }
   }
