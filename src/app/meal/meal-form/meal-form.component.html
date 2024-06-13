@@ -1,21 +1,86 @@
-<div>
-  <h2>{{ mealId ? "Update Meal" : "Add Meal" }}</h2>
-  <form [formGroup]="mealForm" (ngSubmit)="onSubmit()">
-    <label for="mealName">Meal Name:</label>
-    <input id="mealName" formControlName="mealName" />
+<div class="container mx-auto px-4 py-8">
+  <h2 class="text-2xl font-bold mb-4">Add New Meal</h2>
+  <form [formGroup]="mealForm" (ngSubmit)="onSubmit()" class="space-y-4">
+    <div class="flex flex-col">
+      <label for="mealName" class="mb-1 text-sm font-medium">Meal Name</label>
+      <input
+        id="mealName"
+        formControlName="mealName"
+        type="text"
+        class="p-2 border rounded"
+        placeholder="Enter meal name"
+      />
+      <div
+        *ngIf="
+          mealForm.get('mealName')?.invalid && mealForm.get('mealName')?.touched
+        "
+        class="text-red-500 text-sm"
+      >
+        Meal Name is required.
+      </div>
+    </div>
 
-    <label for="description">Description:</label>
-    <input id="description" formControlName="description" />
+    <div class="flex flex-col">
+      <label for="calories" class="mb-1 text-sm font-medium">Calories</label>
+      <input
+        id="calories"
+        formControlName="calories"
+        type="number"
+        class="p-2 border rounded"
+        placeholder="Enter calories"
+      />
+      <div
+        *ngIf="
+          mealForm.get('calories')?.invalid && mealForm.get('calories')?.touched
+        "
+        class="text-red-500 text-sm"
+      >
+        Calories are required.
+      </div>
+    </div>
 
-    <label for="ingredients">Ingredients:</label>
-    <input id="ingredients" formControlName="ingredients" />
+    <div class="flex flex-col">
+      <label for="description" class="mb-1 text-sm font-medium"
+        >Description</label
+      >
+      <textarea
+        id="description"
+        formControlName="description"
+        class="p-2 border rounded"
+        rows="4"
+        placeholder="Enter description"
+      ></textarea>
+      <div
+        *ngIf="
+          mealForm.get('description')?.invalid &&
+          mealForm.get('description')?.touched
+        "
+        class="text-red-500 text-sm"
+      >
+        Description is required.
+      </div>
+    </div>
 
-    <label for="calories">Calories:</label>
-    <input id="calories" formControlName="calories" />
-
-    <label for="date">Date:</label>
-    <input id="date" formControlName="date" type="date" />
-
-    <button type="submit">{{ mealId ? "Update" : "Add" }}</button>
+    <div class="flex flex-col">
+      <label for="ingredients" class="mb-1 text-sm font-medium"
+        >Ingredients</label
+      >
+      <textarea
+        id="ingredients"
+        formControlName="ingredients"
+        class="p-2 border rounded"
+        rows="4"
+        placeholder="Enter ingredients"
+      ></textarea>
+      <div
+        *ngIf="
+          mealForm.get('ingredients')?.invalid &&
+          mealForm.get('ingredients')?.touched
+        "
+        class="text-red-500 text-sm"
+      >
+        Ingredients are requi
+      </div>
+    </div>
   </form>
 </div>

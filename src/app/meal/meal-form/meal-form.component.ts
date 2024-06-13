@@ -1,6 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 // import {
 //   Firestore,
 //   collection,
@@ -9,14 +14,15 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 //   setDoc,
 //   updateDoc,
 // } from '@angular/fire/firestore';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
+import { Meal, MealService } from '../meal.service';
 
 @Component({
   selector: 'app-meal-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './meal-form.component.html',
   styleUrls: ['./meal-form.component.css'],
 })
@@ -28,15 +34,16 @@ export class MealFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     // private firestore: Firestore,
+    private mealService: MealService,
     private route: ActivatedRoute,
     private router: Router
   ) {
     this.mealForm = this.fb.group({
-      mealName: [''],
-      description: [''],
-      ingredients: [''],
-      calories: [''],
-      date: [''],
+      mealName: ['', Validators.required],
+      calories: ['', Validators.required],
+      description: ['', Validators.required],
+      ingredients: ['', Validators.required],
+      date: ['', Validators.required],
     });
   }
 
@@ -54,19 +61,16 @@ export class MealFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    // if (this.mealForm.valid) {
-    //   const mealData = this.mealForm.value;
-    //   if (this.mealId) {
-    //     const mealDocRef = doc(this.firestore, `meals/${this.mealId}`);
-    //     updateDoc(mealDocRef, mealData).then(() => {
-    //       this.router.navigate(['/meal/list']);
-    //     });
-    //   } else {
-    //     const mealsCollectionRef = collection(this.firestore, 'meals');
-    //     setDoc(doc(mealsCollectionRef), mealData).then(() => {
-    //       this.router.navigate(['/meal/list']);
-    //     });
-    //   }
-    // }
+    if (this.mealForm.valid) {
+      const newMeal: Meal = this.mealForm.value;
+      this.mealService
+        .addMeal(newMeal)
+        .then(() => {
+          this.router.navigate(['/meal/list']);
+        })
+        .catch((error) => {
+          console.error('Error adding meal:', error);
+        });
+    }
   }
 }

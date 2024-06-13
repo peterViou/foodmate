@@ -28,10 +28,10 @@ export class MealService {
   constructor(private firestore: Firestore) {}
 
   // Add a new meal
-  // addMeal(meal: Meal): Promise<void> {
-  //   const mealsCollection = collection(this.firestore, 'meals');
-  //   // return addDoc(mealsCollection, meal) as Promise<void>;
-  // }
+  addMeal(meal: Meal): Promise<void> {
+    const mealsCollection = collection(this.firestore, 'meals');
+    return addDoc(mealsCollection, meal).then(() => {});
+  }
 
   // Get all meals
   getMeals(): Observable<Meal[]> {
