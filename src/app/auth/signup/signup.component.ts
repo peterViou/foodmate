@@ -6,8 +6,7 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-// import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
+import { Router, RouterModule } from '@angular/router';
 import { inject } from '@angular/core';
 import { AuthService } from '../auth.service';
 
@@ -20,9 +19,12 @@ import { AuthService } from '../auth.service';
 })
 export class SignupComponent {
   signupForm: FormGroup;
-  // private auth = inject(Auth);
 
-  constructor(private fb: FormBuilder, private authService: AuthService) {
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {
     this.signupForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
@@ -41,6 +43,13 @@ export class SignupComponent {
         .SignUp(this.signupForm.value.email, this.signupForm.value.password)
         .then(() => {
           console.log('Signup successful');
+          console.log('Auto Login');
+          this.authService
+            .SignIn(this.signupForm.value.email, this.signupForm.value.password)
+            .then(() => {
+              this.router.navigate(['/meal/list']);
+            })
+            .catch((error) => console.error('Login failed', error));
         })
         .catch((error) => {
           console.error('Signup failed', error);
