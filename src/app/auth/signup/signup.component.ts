@@ -7,8 +7,9 @@ import {
   Validators,
 } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
+// import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
 import { inject } from '@angular/core';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-signup',
@@ -19,9 +20,9 @@ import { inject } from '@angular/core';
 })
 export class SignupComponent {
   signupForm: FormGroup;
-  private auth = inject(Auth);
+  // private auth = inject(Auth);
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private authService: AuthService) {
     this.signupForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
@@ -36,11 +37,8 @@ export class SignupComponent {
       console.log('Email:', this.signupForm.value.email);
       console.log('Password:', this.signupForm.value.password);
 
-      createUserWithEmailAndPassword(
-        this.auth,
-        this.signupForm.value.email,
-        this.signupForm.value.password
-      )
+      this.authService
+        .SignUp(this.signupForm.value.email, this.signupForm.value.password)
         .then(() => {
           console.log('Signup successful');
         })
