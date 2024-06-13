@@ -1,0 +1,13 @@
+/* Tailwind CSS will handle the basic styling */
+.relative {
+  position: relative;
+}
+.absolute {
+  position: absolute;
+}
+.block {
+  display: block;
+}
+.hidden {
+  display: none;
+}
