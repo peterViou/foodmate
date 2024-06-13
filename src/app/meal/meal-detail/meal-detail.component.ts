@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Firestore, doc, docData, deleteDoc } from '@angular/fire/firestore';
 import { Observable, of } from 'rxjs';
 
 @Component({
   selector: 'app-meal-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './meal-detail.component.html',
   styleUrls: ['./meal-detail.component.css'],
 })
