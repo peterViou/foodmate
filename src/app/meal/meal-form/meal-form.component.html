@@ -1,5 +1,7 @@
 <div class="container mx-auto px-4 py-8">
-  <h2 class="text-2xl font-bold mb-4">Add New Meal</h2>
+  <h2 class="text-2xl font-bold mb-4">
+    {{ isEditMode ? "Update Meal" : "Add New Meal" }}
+  </h2>
   <form [formGroup]="mealForm" (ngSubmit)="onSubmit()" class="space-y-4">
     <div class="flex flex-col">
       <label for="mealName" class="mb-1 text-sm font-medium">Meal Name</label>
@@ -79,8 +81,30 @@
         "
         class="text-red-500 text-sm"
       >
-        Ingredients are requi
+        Ingredients are required.
       </div>
+    </div>
+
+    <div class="flex flex-col">
+      <label for="date" class="mb-1 text-sm font-medium">Date</label>
+      <input
+        id="date"
+        formControlName="date"
+        type="date"
+        class="p-2 border rounded"
+      />
+      <div
+        *ngIf="mealForm.get('date')?.invalid && mealForm.get('date')?.touched"
+        class="text-red-500 text-sm"
+      >
+        Date is required.
+      </div>
+    </div>
+
+    <div class="flex justify-end">
+      <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded">
+        {{ isEditMode ? "Update Meal" : "Save Meal" }}
+      </button>
     </div>
   </form>
 </div>

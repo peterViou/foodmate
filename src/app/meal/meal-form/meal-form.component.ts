@@ -29,11 +29,11 @@ import { Meal, MealService } from '../meal.service';
 export class MealFormComponent implements OnInit {
   mealForm: FormGroup;
   mealId: string | null = null;
-  meal$: Observable<any> = of({});
+  isEditMode: boolean = false;
+  // meal$: Observable<any> = of({});
 
   constructor(
     private fb: FormBuilder,
-    // private firestore: Firestore,
     private mealService: MealService,
     private route: ActivatedRoute,
     private router: Router
@@ -48,29 +48,45 @@ export class MealFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.mealId = this.route.snapshot.paramMap.get('id');
-    if (this.mealId) {
-      // const mealDoc = doc(this.firestore, `meals/${this.mealId}`);
-      // this.meal$ = docData(mealDoc);
-      // this.meal$.subscribe((meal) => {
-      //   if (meal) {
-      //     this.mealForm.patchValue(meal);
-      //   }
-      // });
-    }
+    this.route.paramMap.subscribe((params) => {
+      this.mealId = params.get('id');
+      if (this.mealId) {
+        this.isEditMode = true;
+        this.getMeal(this.mealId);
+      }
+    });
+  }
+
+  getMeal(id: string): void {
+    this.mealService.getMeal(id).subscribe((meal) => {
+      if (meal) {
+        this.mealForm.patchValue(meal);
+      }
+    });
   }
 
   onSubmit(): void {
     if (this.mealForm.valid) {
-      const newMeal: Meal = this.mealForm.value;
-      this.mealService
-        .addMeal(newMeal)
-        .then(() => {
-          this.router.navigate(['/meal/list']);
-        })
-        .catch((error) => {
-          console.error('Error adding meal:', error);
-        });
+      const meal: Meal = this.mealForm.value;
+      if (this.isEditMode && this.mealId) {
+        this.mealService
+          .updateMeal(this.mealId, meal)
+          .then(() => {
+            this.router.navigate(['/meal/list']);
+          })
+          .catch((error) => {
+            console.error('Error updating meal:', error);
+          });
+      } else {
+        this.mealService
+          .addMeal(meal)
+          .then(() => {
+            this.router.navigate(['/meal/list']);
+          })
+          .catch((error) => {
+            console.error('Error adding meal:', error);
+          });
+      }
     }
   }
 }
