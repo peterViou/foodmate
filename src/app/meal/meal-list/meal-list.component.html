@@ -1,22 +1,43 @@
-<div>
-  <h2>Meal List</h2>
-  <ul>
-    <li *ngFor="let meal of meals$ | async">
-      <strong
-        ><a [routerLink]="['/meal/detail', meal.id]">{{
-          meal.mealName
-        }}</a></strong
-      >
-      - {{ meal.calories }} calories
-      <br />
-      Description: {{ meal.description }}
-      <br />
-      Ingredients: {{ meal.ingredients }}
-      <br />
-      Date: {{ meal.date }}
-      <br />
-      <a [routerLink]="['/meal/edit', meal.id]">Edit</a>
+<div class="container mx-auto px-4">
+  <h2 class="text-2xl font-bold mb-4">Meal List</h2>
+  <ul class="space-y-4">
+    <li *ngFor="let meal of meals$ | async" class="p-4 border rounded shadow">
+      <div class="flex justify-between items-center">
+        <div>
+          <h3 class="text-xl font-semibold">
+            <a
+              [routerLink]="['/meal/detail', meal.id]"
+              class="text-blue-500 hover:underline"
+              >{{ meal.mealName }}</a
+            >
+          </h3>
+          <p class="text-gray-600">{{ meal.calories }} calories</p>
+          <p class="text-gray-600">Description: {{ meal.description }}</p>
+          <p class="text-gray-600">Ingredients: {{ meal.ingredients }}</p>
+          <p class="text-gray-600">Date: {{ meal.date }}</p>
+        </div>
+        <div class="flex space-x-2">
+          <a
+            [routerLink]="['/meal/edit', meal.id]"
+            class="px-4 py-2 bg-blue-500 text-white rounded"
+            >Edit</a
+          >
+          <button
+            *ngIf="meal.id"
+            (click)="deleteMeal(meal.id!)"
+            class="px-4 py-2 bg-red-500 text-white rounded"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
     </li>
   </ul>
-  <a [routerLink]="['/meal/add']">Add New Meal</a>
+  <div class="mt-6">
+    <a
+      [routerLink]="['/meal/add']"
+      class="px-4 py-2 bg-green-500 text-white rounded"
+      >Add New Meal</a
+    >
+  </div>
 </div>
