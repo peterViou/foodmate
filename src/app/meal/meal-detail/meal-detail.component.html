@@ -1,1 +1,7 @@
-<p>meal-detail works!</p>
+<div *ngIf="meal$ | async as meal">
+  <h2>{{ meal.mealName }}</h2>
+  <p>Calories: {{ meal.calories }}</p>
+  <p>Description: {{ meal.description }}</p>
+  <p>Ingredients: {{ meal.ingredients }}</p>
+  <p>Date: {{ meal.date }}</p>
+</div>

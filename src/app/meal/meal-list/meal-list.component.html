@@ -2,13 +2,21 @@
   <h2>Meal List</h2>
   <ul>
     <li *ngFor="let meal of meals$ | async">
-      <strong>{{ meal.mealName }}</strong> - {{ meal.calories }} calories
+      <strong
+        ><a [routerLink]="['/meal/detail', meal.id]">{{
+          meal.mealName
+        }}</a></strong
+      >
+      - {{ meal.calories }} calories
       <br />
       Description: {{ meal.description }}
       <br />
       Ingredients: {{ meal.ingredients }}
       <br />
       Date: {{ meal.date }}
+      <br />
+      <a [routerLink]="['/meal/edit', meal.id]">Edit</a>
     </li>
   </ul>
+  <a [routerLink]="['/meal/add']">Add New Meal</a>
 </div>

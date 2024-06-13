@@ -1,0 +1,21 @@
+<div>
+  <h2>{{ mealId ? "Update Meal" : "Add Meal" }}</h2>
+  <form [formGroup]="mealForm" (ngSubmit)="onSubmit()">
+    <label for="mealName">Meal Name:</label>
+    <input id="mealName" formControlName="mealName" />
+
+    <label for="description">Description:</label>
+    <input id="description" formControlName="description" />
+
+    <label for="ingredients">Ingredients:</label>
+    <input id="ingredients" formControlName="ingredients" />
+
+    <label for="calories">Calories:</label>
+    <input id="calories" formControlName="calories" />
+
+    <label for="date">Date:</label>
+    <input id="date" formControlName="date" type="date" />
+
+    <button type="submit">{{ mealId ? "Update" : "Add" }}</button>
+  </form>
+</div>
