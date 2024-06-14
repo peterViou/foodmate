@@ -1,34 +1,42 @@
-import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { Auth, user, signOut } from '@angular/fire/auth';
-import { Observable } from 'rxjs';
+
+import { Observable, from } from 'rxjs';
+import { User } from '@angular/fire/auth';
+import { AuthService } from '../../auth/auth.service';
+import { Router, RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css'],
 })
 export class NavbarComponent {
-  user$: Observable<any>;
-  dropdownOpen = false;
+  user$: Observable<User | null>;
+  dropdownOpen: boolean = false;
 
-  constructor(private auth: Auth) {
-    this.user$ = user(auth);
+  constructor(private authService: AuthService, private router: Router) {
+    this.user$ = this.authService.user$;
   }
 
-  toggleDropdown(): void {
+  toggleDropdown() {
     this.dropdownOpen = !this.dropdownOpen;
   }
 
-  logout(): void {
-    signOut(this.auth)
+  login() {
+    this.router.navigate(['/auth/login']);
+  }
+
+  logout() {
+    this.authService
+      .SignOut()
       .then(() => {
-        console.log('User signed out');
+        console.log('User logged out');
       })
       .catch((error) => {
-        console.error('Error signing out:', error);
+        console.error('Logout error:', error);
       });
   }
 }

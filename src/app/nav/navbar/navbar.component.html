@@ -15,8 +15,15 @@
           *ngIf="dropdownOpen"
           class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1"
         >
-          <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-            >Profile</a
+          <a
+            routerLink="/chat"
+            class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+            >Chat</a
+          >
+          <a
+            routerLink="/list"
+            class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+            >Meal List</a
           >
           <a
             href="#"
@@ -28,7 +35,7 @@
       </div>
     </ng-container>
     <ng-template #showLogin>
-      <a routerLink="/auth/login" class="text-white">Login</a>
+      <a (click)="login()" class="text-white cursor-pointer">Login</a>
     </ng-template>
   </div>
 </nav>
