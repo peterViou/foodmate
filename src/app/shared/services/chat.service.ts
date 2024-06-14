@@ -1,8 +1,8 @@
 // src/app/shared/services/chat.service.ts
 
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, from } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import { Message } from '../../chat/message.model'; // Adjust the path as necessary
 import {
   Firestore,
@@ -13,6 +13,7 @@ import {
   orderBy,
   getDocs,
   deleteDoc,
+  where,
 } from '@angular/fire/firestore';
 import { AuthService } from '../../auth/auth.service';
 
@@ -34,12 +35,12 @@ export class ChatService {
    * @returns {Promise<void>}
    */
   async saveMessage(message: Message): Promise<void> {
-    const currentUser = await this.authService.getUser();
-    if (currentUser) {
-      message.userId = currentUser.uid; // Assign the user's UID to the message
+    const user = await this.authService.getUser();
+    if (user) {
+      message.userId = user.uid;
     }
-    const messagesRef = collection(this.firestore, 'messages');
-    await addDoc(messagesRef, message);
+    const messagesCollection = collection(this.firestore, 'messages');
+    await addDoc(messagesCollection, message);
   }
 
   /**
@@ -49,10 +50,19 @@ export class ChatService {
    * @returns {Observable<Message[]>} - An observable stream of messages.
    */
   getMessages(): Observable<Message[]> {
-    const messagesRef = collection(this.firestore, 'messages');
-    const messagesQuery = query(messagesRef, orderBy('timestamp'));
-    return collectionData(messagesQuery, { idField: 'id' }).pipe(
-      map((data) => data as Message[])
+    return this.authService.user$.pipe(
+      switchMap((user) => {
+        if (!user) {
+          throw new Error('User not logged in');
+        }
+        const messagesCollection = collection(this.firestore, 'messages');
+        const q = query(
+          messagesCollection,
+          where('userId', '==', user.uid),
+          orderBy('timestamp')
+        );
+        return collectionData(q, { idField: 'id' }) as Observable<Message[]>;
+      })
     );
   }
 
@@ -62,12 +72,14 @@ export class ChatService {
    * @returns {Promise<void>}
    */
   async deleteAllMessages(): Promise<void> {
-    // TODO: Add alert message to confirm deletion
-    // TODO: Add notification message that messages have been deleted
-    const messagesRef = collection(this.firestore, 'messages');
-    const messagesQuery = query(messagesRef);
-    const messagesSnapshot = await getDocs(messagesQuery);
-    messagesSnapshot.forEach(async (doc) => {
+    const user = await this.authService.getUser();
+    if (!user) {
+      throw new Error('User not logged in');
+    }
+    const messagesCollection = collection(this.firestore, 'messages');
+    const q = query(messagesCollection, where('userId', '==', user.uid));
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach(async (doc) => {
       await deleteDoc(doc.ref);
     });
   }
