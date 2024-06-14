@@ -17,6 +17,5 @@ export const appConfig: ApplicationConfig = {
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
     provideAuth(() => getAuth()),
     provideFirestore(() => getFirestore()),
-    // importProvidersFrom(NavbarComponent),
   ],
 };
