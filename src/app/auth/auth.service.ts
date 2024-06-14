@@ -7,6 +7,7 @@ import {
   onAuthStateChanged,
   signOut,
 } from '@angular/fire/auth';
+import { Router, RouterModule } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
@@ -17,7 +18,7 @@ export class AuthService {
   private userSubject = new BehaviorSubject<User | null>(null);
   user$ = this.userSubject.asObservable();
 
-  constructor() {
+  constructor(private router: Router) {
     // Écoutez les changements d'état d'authentification et mettez à jour le BehaviorSubject
     onAuthStateChanged(this.auth, (user) => {
       this.userSubject.next(user);
@@ -28,6 +29,7 @@ export class AuthService {
     return signInWithEmailAndPassword(this.auth, email, password).then(
       () => {
         console.log('Login successful');
+        this.router.navigate(['/']);
       },
       (error) => {
         console.error('Login failed', error);
@@ -39,6 +41,7 @@ export class AuthService {
     return createUserWithEmailAndPassword(this.auth, email, password).then(
       () => {
         console.log('Signup successful');
+        this.router.navigate(['/']);
       },
       (error) => {
         console.error('Signup failed', error);
@@ -51,6 +54,7 @@ export class AuthService {
       () => {
         console.log('Signout successful');
         this.userSubject.next(null);
+        this.router.navigate(['/']);
       },
       (error) => {
         console.error('Signout failed', error);
