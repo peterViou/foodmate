@@ -31,6 +31,7 @@ export class AuthService {
     return signInWithEmailAndPassword(this.auth, email, password).then(
       () => {
         console.log('Login successful');
+        this.router.navigate(['/chat']);
       },
       (error) => {
         const errorMessage = this.errorHandler.handleError(error);

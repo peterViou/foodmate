@@ -37,9 +37,7 @@ export class LoginComponent {
     if (this.loginForm.valid) {
       this.authService
         .SignIn(this.loginForm.value.email, this.loginForm.value.password)
-        .then(() => {
-          this.router.navigate(['/meal/list']);
-        })
+        .then(() => {})
         .catch((error) => {
           this.setFormErrors(error);
         });
