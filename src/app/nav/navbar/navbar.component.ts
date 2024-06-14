@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-
-import { Observable, from } from 'rxjs';
+import { Observable } from 'rxjs';
 import { User } from '@angular/fire/auth';
 import { AuthService } from '../../auth/auth.service';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { ChatService } from '../../shared/services/chat.service';
 
 @Component({
   selector: 'app-navbar',
@@ -17,7 +17,11 @@ export class NavbarComponent {
   user$: Observable<User | null>;
   dropdownOpen: boolean = false;
 
-  constructor(private authService: AuthService, private router: Router) {
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private firestoreService: ChatService
+  ) {
     this.user$ = this.authService.user$;
   }
 
@@ -38,5 +42,12 @@ export class NavbarComponent {
       .catch((error) => {
         console.error('Logout error:', error);
       });
+  }
+
+  deleteChatHistory() {
+    this.firestoreService.deleteAllMessages().then(() => {
+      console.log('Chat history deleted');
+      this.router.navigate(['/chat']);
+    });
   }
 }
