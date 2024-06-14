@@ -16,7 +16,7 @@ FoodMate is an Angular application with Firebase that helps you track your food 
 
 1. Clone the repository
    ```bash
-   git clone https://github.com/yourusername/foodMate.git
+   git clone https://github.com/peterviou/foodMate.git
    ```
 2. Navigate to the project directory
    ```bash
@@ -33,6 +33,7 @@ FoodMate is an Angular application with Firebase that helps you track your food 
      ```typescript
      export const environment = {
        production: false,
+       openaiApiKey: "your-api-key",
        firebaseConfig: {
          apiKey: "your-api-key",
          authDomain: "your-auth-domain",
@@ -52,9 +53,41 @@ FoodMate is an Angular application with Firebase that helps you track your food 
 
 Once the application is running, you can start tracking your food intake using the conversational agent or the manual forms. The agent will provide suggestions and reminders based on your input.
 
+### Authentication
+
+- Navigate to `/auth/login` to log in.
+- Navigate to `/auth/signup` to sign up for a new account.
+
+### Meals Management
+
+- View meals list: `/meal/list`
+- Add a new meal: `/meal/add`
+- Edit a meal: `/meal/edit/:id`
+- View meal details: `/meal/detail/:id`
+
+### Chat
+
+- Access the chat: `/chat`
+
 ## Contributing
 
 Contributions are welcome! Please fork the repository and create a pull request with your changes.
+
+### Coding Standards
+
+- Follow the Angular style guide for structuring and organizing code.
+- Use Tailwind CSS for styling.
+
+### Folder Structure
+
+src/
+app/
+auth/
+chat/
+meal/
+shared/
+assets/
+environments/
 
 ## License
 
