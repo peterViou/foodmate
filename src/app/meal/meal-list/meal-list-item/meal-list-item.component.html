@@ -1,0 +1,31 @@
+<!-- meal-list-item.component.html -->
+<div class="p-4 border rounded shadow">
+  <div class="flex justify-between items-center">
+    <div>
+      <h3 class="text-xl font-semibold">
+        <a
+          [routerLink]="['/meal/detail', meal.id]"
+          class="text-blue-500 hover:underline"
+          >{{ meal.mealName }}</a
+        >
+      </h3>
+      <p class="text-gray-600">{{ meal.calories }} calories</p>
+      <p class="text-gray-600">Description: {{ meal.description }}</p>
+      <p class="text-gray-600">Ingredients: {{ meal.ingredients }}</p>
+      <!-- <p class="text-gray-600">Date: {{ meal.date | date : "mediumDate" }}</p> -->
+    </div>
+    <div class="flex space-x-2">
+      <a
+        [routerLink]="['/meal/edit', meal.id]"
+        class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        >Edit</a
+      >
+      <button
+        (click)="onDeleteMeal()"
+        class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+      >
+        Delete
+      </button>
+    </div>
+  </div>
+</div>

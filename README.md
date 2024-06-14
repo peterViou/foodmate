@@ -1,27 +1,61 @@
-# Foodmate
+# FoodMate
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.0.3.
+FoodMate is an Angular application with Firebase that helps you track your food intake, meals, macronutrients, micronutrients, and nutrients using a conversational agent. The agent automates the data entry process, asks for missing meal information, and provides dietary suggestions based on your input.
 
-## Development server
+## Features
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+- Conversational agent for automatic food intake tracking
+- Manual form entry for food and meals
+- Macronutrient and micronutrient tracking
+- Dietary suggestions based on input
+- Integration with iPhone Health app, MyFitnessPal, and Pcal (future)
+- Personalized diet plans (low potassium, low vitamin K, intermittent fasting, etc.)
+- Support for tracking irritable bowel syndrome and allergies
 
-## Code scaffolding
+## Installation
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+1. Clone the repository
+   ```bash
+   git clone https://github.com/yourusername/foodMate.git
+   ```
+2. Navigate to the project directory
+   ```bash
+   cd foodMate
+   ```
+3. Install dependencies
+   ```bash
+   npm install
+   ```
+4. Set up Firebase
+   - Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
+   - Add a web app and copy the configuration details
+   - Add Firebase configuration to `src/environments/environment.ts`
+     ```typescript
+     export const environment = {
+       production: false,
+       firebaseConfig: {
+         apiKey: "your-api-key",
+         authDomain: "your-auth-domain",
+         projectId: "your-project-id",
+         storageBucket: "your-storage-bucket",
+         messagingSenderId: "your-messaging-sender-id",
+         appId: "your-app-id",
+       },
+     };
+     ```
+5. Run the application
+   ```bash
+   ng serve
+   ```
 
-## Build
+## Usage
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+Once the application is running, you can start tracking your food intake using the conversational agent or the manual forms. The agent will provide suggestions and reminders based on your input.
 
-## Running unit tests
+## Contributing
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Contributions are welcome! Please fork the repository and create a pull request with your changes.
 
-## Running end-to-end tests
+## License
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
