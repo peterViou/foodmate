@@ -27,7 +27,6 @@ export class AuthService {
     });
   }
 
-  // TODO: Implement error handling for SignIn method
   SignIn(email: string, password: string): Promise<void> {
     return signInWithEmailAndPassword(this.auth, email, password).then(
       () => {
@@ -81,7 +80,10 @@ export class AuthService {
             resolve(null);
           }
         },
-        reject
+        (error) => {
+          this.errorHandler.handleError(error);
+          reject(error);
+        }
       );
     });
   }

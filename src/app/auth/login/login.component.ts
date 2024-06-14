@@ -41,7 +41,7 @@ export class LoginComponent {
           this.router.navigate(['/meal/list']);
         })
         .catch((error) => {
-          this.errorMessage = this.errorHandler.handleError(error);
+          this.setFormErrors(error);
         });
     }
   }

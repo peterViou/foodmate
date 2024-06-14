@@ -32,6 +32,39 @@ export class SignupComponent {
     });
   }
 
+  setFormErrors(errorMsg: string) {
+    if (errorMsg.includes('email')) {
+      this.signupForm.controls['email'].setErrors({ serverError: errorMsg });
+    } else if (errorMsg.includes('password')) {
+      this.signupForm.controls['password'].setErrors({ serverError: errorMsg });
+      this.signupForm.controls['confirmPassword'].setErrors({
+        serverError: errorMsg,
+      });
+    } else {
+      this.signupForm.setErrors({ serverError: errorMsg });
+    }
+  }
+
+  isFieldInvalid(field: string): boolean {
+    return (
+      !this.signupForm.controls[field].valid &&
+      (this.signupForm.controls[field].touched ||
+        this.signupForm.controls[field].dirty)
+    );
+  }
+
+  getErrorMessage(field: string): string {
+    const control = this.signupForm.get(field);
+    if (control?.hasError('required')) {
+      return 'This field is required';
+    } else if (control?.hasError('email')) {
+      return 'Please enter a valid email';
+    } else if (control?.hasError('serverError')) {
+      return control.getError('serverError');
+    }
+    return '';
+  }
+
   onSubmit(): void {
     console.log('Signup form submitted');
     if (this.signupForm.valid) {
