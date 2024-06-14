@@ -45,4 +45,35 @@ export class LoginComponent {
         });
     }
   }
+
+  setFormErrors(errorMsg: string) {
+    if (errorMsg.includes('email')) {
+      this.loginForm.controls['email'].setErrors({ serverError: errorMsg });
+    } else if (errorMsg.includes('password')) {
+      this.loginForm.controls['password'].setErrors({ serverError: errorMsg });
+    } else {
+      // General error if it's not specific to email or password
+      this.loginForm.setErrors({ serverError: errorMsg });
+    }
+  }
+
+  isFieldInvalid(field: string): boolean {
+    return (
+      !this.loginForm.controls[field].valid &&
+      (this.loginForm.controls[field].touched ||
+        this.loginForm.controls[field].dirty)
+    );
+  }
+
+  getErrorMessage(field: string): string {
+    const control = this.loginForm.get(field);
+    if (control?.hasError('required')) {
+      return 'This field is required';
+    } else if (control?.hasError('email')) {
+      return 'Please enter a valid email';
+    } else if (control?.hasError('serverError')) {
+      return control.getError('serverError');
+    }
+    return '';
+  }
 }
