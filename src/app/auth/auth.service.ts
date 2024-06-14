@@ -9,12 +9,14 @@ import {
 } from '@angular/fire/auth';
 import { Router, RouterModule } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
+import { ErrorHandlerService } from '../shared/services/error-handler.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private auth = inject(Auth);
+  private errorHandler = inject(ErrorHandlerService);
   private userSubject = new BehaviorSubject<User | null>(null);
   user$ = this.userSubject.asObservable();
 
@@ -25,30 +27,35 @@ export class AuthService {
     });
   }
 
+  // TODO: Implement error handling for SignIn method
   SignIn(email: string, password: string): Promise<void> {
     return signInWithEmailAndPassword(this.auth, email, password).then(
       () => {
         console.log('Login successful');
-        this.router.navigate(['/']);
       },
       (error) => {
-        console.error('Login failed', error);
+        const errorMessage = this.errorHandler.handleError(error);
+        console.error('Login failed', errorMessage);
       }
     );
   }
 
+  // TODO: Add user notifications for successful sign in, and create a user welcome page to invite te proceed a profile step by step
+  // TODO: Ask the user to confirm their password (type it twice) to reduce the possibility of typos.
+  // TODO: Remember to ask the user to agree to your terms and conditions
+  // TODO : Don’t forget a password recovery/reset feature
   SignUp(email: string, password: string): Promise<void> {
     return createUserWithEmailAndPassword(this.auth, email, password).then(
       () => {
         console.log('Signup successful');
-        this.router.navigate(['/']);
       },
       (error) => {
-        console.error('Signup failed', error);
+        const errorMessage = this.errorHandler.handleError(error);
+        console.error('Signup failed', errorMessage);
       }
     );
   }
-
+  // TODO: Add user notifications for successful sign out
   SignOut(): Promise<void> {
     return signOut(this.auth).then(
       () => {
@@ -57,7 +64,8 @@ export class AuthService {
         this.router.navigate(['/']);
       },
       (error) => {
-        console.error('Signout failed', error);
+        const errorMessage = this.errorHandler.handleError(error);
+        console.error('Signout failed', errorMessage);
       }
     );
   }
