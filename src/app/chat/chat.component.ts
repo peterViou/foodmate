@@ -28,28 +28,17 @@ export class ChatComponent implements OnInit, OnDestroy {
     console.log('ChatComponent initialized');
   }
 
-  /**
-   * Lifecycle hook that is called after data-bound properties of a directive are initialized.
-   * Initialize the conversation state and subscribe to the message observable to fetch chat history.
-   */
   ngOnInit(): void {
     console.log('ngOnInit called');
     this.contextService.setContext('conversationState', 'greeting');
     this.subscribeToMessages();
   }
 
-  /**
-   * Lifecycle hook that is called when a directive, pipe, or service is destroyed.
-   * Unsubscribe from the message observable to avoid memory leaks.
-   */
   ngOnDestroy(): void {
     console.log('ngOnDestroy called');
     this.unsubscribeFromMessages();
   }
 
-  /**
-   * Subscribes to the message observable to fetch and update chat history.
-   */
   private subscribeToMessages(): void {
     console.log('subscribeToMessages called');
     this.messagesSubscription = this.chatService.getMessages().subscribe(
@@ -63,9 +52,6 @@ export class ChatComponent implements OnInit, OnDestroy {
     );
   }
 
-  /**
-   * Unsubscribes from the message observable to avoid memory leaks.
-   */
   private unsubscribeFromMessages(): void {
     console.log('unsubscribeFromMessages called');
     if (this.messagesSubscription) {
@@ -73,9 +59,6 @@ export class ChatComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Sends a user message and handles the chat state.
-   */
   sendMessage(): void {
     console.log('sendMessage called');
     if (this.userInput.trim()) {
@@ -89,46 +72,48 @@ export class ChatComponent implements OnInit, OnDestroy {
       this.chatService.saveMessage(userMessage).then(() => {
         console.log('User message saved');
         this.chatHistory.push(userMessage);
+
+        // Collect the conversation history
+        const conversationHistory = this.chatHistory.map((message) => ({
+          role: message.type === 'user' ? 'user' : 'assistant',
+          content: message.content,
+        }));
+
+        this.isTyping = true;
+
+        this.handleState(
+          this.contextService.getContext('conversationState'),
+          conversationHistory
+        );
       });
 
       this.userInput = '';
-      this.isTyping = true;
-
-      this.handleState(
-        this.contextService.getContext('conversationState'),
-        userMessage.content
-      );
     }
   }
 
-  /**
-   * Handles different states of the conversation.
-   * @param state The current state of the conversation.
-   * @param userInput The user's input.
-   */
-  private handleState(state: string, userInput: string): void {
+  private handleState(
+    state: string,
+    conversationHistory: { role: string; content: string }[]
+  ): void {
     console.log(
       'handleState called with state:',
       state,
-      'and userInput:',
-      userInput
+      'and conversationHistory:',
+      conversationHistory
     );
     switch (state) {
       case 'greeting':
-        this.handleGreeting(userInput);
+        this.handleGreeting(conversationHistory);
         break;
-      // Add other states as needed
       default:
-        this.handleDefault(userInput);
+        this.handleDefault(conversationHistory);
     }
   }
 
-  /**
-   * Handles the greeting state.
-   * @param userInput The user's input.
-   */
-  private handleGreeting(userInput: string): void {
-    this.openaiService.getChatResponse(userInput).then((response) => {
+  private handleGreeting(
+    conversationHistory: { role: string; content: string }[]
+  ): void {
+    this.openaiService.getChatResponse(conversationHistory).then((response) => {
       const botMessage: Message = {
         type: 'bot',
         content: response,
@@ -143,12 +128,10 @@ export class ChatComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Handles the default state.
-   * @param userInput The user's input.
-   */
-  private handleDefault(userInput: string): void {
-    this.openaiService.getChatResponse(userInput).then((response) => {
+  private handleDefault(
+    conversationHistory: { role: string; content: string }[]
+  ): void {
+    this.openaiService.getChatResponse(conversationHistory).then((response) => {
       const botMessage: Message = {
         type: 'bot',
         content: response,

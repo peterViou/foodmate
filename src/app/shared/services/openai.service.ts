@@ -9,13 +9,16 @@ export class OpenAIService {
   private apiUrl: string = 'https://api.openai.com/v1/chat/completions';
   private apiKey: string = environment.openaiApiKey; // Remplace par ta clé API
 
-  async getChatResponse(prompt: string): Promise<string> {
+  // Update the method to accept conversation history
+  async getChatResponse(
+    conversationHistory: { role: string; content: string }[]
+  ): Promise<string> {
     try {
       const response = await axios.post(
         this.apiUrl,
         {
           model: 'gpt-3.5-turbo',
-          messages: [{ role: 'user', content: prompt }],
+          messages: conversationHistory,
         },
         {
           headers: {
