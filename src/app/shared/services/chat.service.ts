@@ -1,8 +1,6 @@
-// src/app/shared/services/chat.service.ts
-
 import { Injectable } from '@angular/core';
-import { Observable, from } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { switchMap, catchError } from 'rxjs/operators';
 import { Message } from '../../chat/message.model'; // Adjust the path as necessary
 import {
   Firestore,
@@ -16,39 +14,35 @@ import {
   where,
 } from '@angular/fire/firestore';
 import { AuthService } from '../../auth/auth.service';
+import { ContextService } from './context.service';
+import { ErrorHandlerService } from './error-handler.service';
+import { OpenAIService } from './openai.service';
 
-/**
- * ChatService handles operations related to chat messages.
- * This includes saving messages, retrieving messages, and deleting all messages.
- */
 @Injectable({
   providedIn: 'root',
 })
 export class ChatService {
-  constructor(private firestore: Firestore, private authService: AuthService) {}
+  constructor(
+    private firestore: Firestore,
+    private authService: AuthService,
+    private openaiService: OpenAIService,
+    private contextService: ContextService,
+    private errorHandler: ErrorHandlerService
+  ) {}
 
-  /**
-   * Saves a message to the Firestore database.
-   * Associates the message with the current user's UID.
-   *
-   * @param {Message} message - The message to be saved.
-   * @returns {Promise<void>}
-   */
   async saveMessage(message: Message): Promise<void> {
-    const user = await this.authService.getUser();
-    if (user) {
-      message.userId = user.uid;
+    try {
+      const user = await this.authService.getUser();
+      if (user) {
+        message.userId = user.uid;
+      }
+      const messagesCollection = collection(this.firestore, 'messages');
+      await addDoc(messagesCollection, message);
+    } catch (error) {
+      this.errorHandler.handleError(error).subscribe();
     }
-    const messagesCollection = collection(this.firestore, 'messages');
-    await addDoc(messagesCollection, message);
   }
 
-  /**
-   * Retrieves all messages from the Firestore database.
-   * Messages are ordered by their timestamp.
-   *
-   * @returns {Observable<Message[]>} - An observable stream of messages.
-   */
   getMessages(): Observable<Message[]> {
     return this.authService.user$.pipe(
       switchMap((user) => {
@@ -62,25 +56,101 @@ export class ChatService {
           orderBy('timestamp')
         );
         return collectionData(q, { idField: 'id' }) as Observable<Message[]>;
+      }),
+      catchError((error) => {
+        this.errorHandler.handleError(error).subscribe();
+        return throwError(() => new Error('Error fetching messages'));
       })
     );
   }
 
-  /**
-   * Deletes all messages from the Firestore database.
-   *
-   * @returns {Promise<void>}
-   */
   async deleteAllMessages(): Promise<void> {
-    const user = await this.authService.getUser();
-    if (!user) {
-      throw new Error('User not logged in');
+    try {
+      const user = await this.authService.getUser();
+      if (!user) {
+        throw new Error('User not logged in');
+      }
+      const messagesCollection = collection(this.firestore, 'messages');
+      const q = query(messagesCollection, where('userId', '==', user.uid));
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach(async (doc) => {
+        await deleteDoc(doc.ref);
+      });
+    } catch (error) {
+      this.errorHandler.handleError(error).subscribe();
     }
-    const messagesCollection = collection(this.firestore, 'messages');
-    const q = query(messagesCollection, where('userId', '==', user.uid));
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach(async (doc) => {
-      await deleteDoc(doc.ref);
-    });
+  }
+
+  async analyzeMessage(
+    message: string
+  ): Promise<{ meal: string; mealType: string; datetime: string } | null> {
+    try {
+      return await this.openaiService.extractMealDetails(message);
+    } catch (error) {
+      this.errorHandler.handleError(error).subscribe();
+      return null;
+    }
+  }
+
+  async analyzeMessage_old(message: string): Promise<boolean> {
+    try {
+      return await this.openaiService.analyzeText(message);
+    } catch (error) {
+      this.errorHandler.handleError(error).subscribe();
+      return false;
+    }
+  }
+
+  async handleState(
+    state: string,
+    conversationHistory: { role: string; content: string }[]
+  ): Promise<Message> {
+    console.log(
+      'handleState called with state:',
+      state,
+      'and conversationHistory:',
+      conversationHistory
+    );
+    switch (state) {
+      case 'greeting':
+        return this.handleChatResponse(
+          conversationHistory,
+          'default',
+          'collectingInfo'
+        );
+      case 'processing':
+        return this.handleChatResponse(conversationHistory, 'meal', 'greeting');
+      default:
+        return this.handleChatResponse(
+          conversationHistory,
+          'default',
+          'greeting'
+        );
+    }
+  }
+
+  private async handleChatResponse(
+    conversationHistory: { role: string; content: string }[],
+    context: 'default' | 'meal',
+    nextState: string
+  ): Promise<Message> {
+    try {
+      const response = await this.openaiService.getChatResponse(
+        conversationHistory
+      );
+      const botMessage: Message = {
+        type: 'bot',
+        content: response,
+        timestamp: new Date(),
+        context: context,
+      };
+
+      await this.saveMessage(botMessage);
+      this.contextService.setContext('conversationState', nextState);
+      return botMessage;
+    } catch (error) {
+      this.errorHandler.handleError(error).subscribe();
+      throw error;
+    }
   }
 }

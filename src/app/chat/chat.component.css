@@ -34,6 +34,10 @@ h1 {
   text-align: left;
 }
 
+.meal-message {
+  background-color: yellow;
+}
+
 .input-container {
   position: fixed;
   bottom: 0;

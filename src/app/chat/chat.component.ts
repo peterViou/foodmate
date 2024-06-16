@@ -21,7 +21,6 @@ export class ChatComponent implements OnInit, OnDestroy {
   private messagesSubscription!: Subscription;
 
   constructor(
-    private openaiService: OpenAIService,
     private contextService: ContextService,
     private chatService: ChatService
   ) {
@@ -32,11 +31,6 @@ export class ChatComponent implements OnInit, OnDestroy {
     console.log('ngOnInit called');
     this.contextService.setContext('conversationState', 'greeting');
     this.subscribeToMessages();
-  }
-
-  ngOnDestroy(): void {
-    console.log('ngOnDestroy called');
-    this.unsubscribeFromMessages();
   }
 
   private subscribeToMessages(): void {
@@ -66,82 +60,123 @@ export class ChatComponent implements OnInit, OnDestroy {
         type: 'user',
         content: this.userInput,
         timestamp: new Date(),
+        context: 'default', // Default context
       };
       console.log('User message created:', userMessage);
 
-      this.chatService.saveMessage(userMessage).then(() => {
-        console.log('User message saved');
-        this.chatHistory.push(userMessage);
+      this.chatService
+        .saveMessage(userMessage)
+        .then(() => {
+          console.log('User message saved');
+          this.chatHistory.push(userMessage);
 
-        // Collect the conversation history
-        const conversationHistory = this.chatHistory.map((message) => ({
-          role: message.type === 'user' ? 'user' : 'assistant',
-          content: message.content,
-        }));
+          // Collect the conversation history
+          const conversationHistory = this.chatHistory.map((message) => ({
+            role: message.type === 'user' ? 'user' : 'assistant',
+            content: message.content,
+          }));
 
-        this.isTyping = true;
+          this.isTyping = true;
 
-        this.handleState(
-          this.contextService.getContext('conversationState'),
-          conversationHistory
-        );
-      });
+          this.chatService
+            .analyzeMessage(userMessage.content)
+            .then((mealDetails) => {
+              if (mealDetails) {
+                // Set context to meal if meal details are extracted
+                this.chatHistory[this.chatHistory.length - 1].context = 'meal';
+                this.contextService.setContext(
+                  'conversationState',
+                  'processing'
+                );
+                console.log('Meal details extracted:', mealDetails);
+              } else {
+                this.contextService.setContext('conversationState', 'greeting');
+                console.log('No meal details extracted.');
+              }
+
+              this.chatService.handleState(
+                this.contextService.getContext('conversationState'),
+                conversationHistory
+              );
+            })
+            .catch((error) => {
+              console.error('Error analyzing message:', error);
+            });
+        })
+        .catch((error) => {
+          console.error('Error saving message:', error);
+        });
 
       this.userInput = '';
     }
   }
 
-  private handleState(
-    state: string,
-    conversationHistory: { role: string; content: string }[]
-  ): void {
-    console.log(
-      'handleState called with state:',
-      state,
-      'and conversationHistory:',
-      conversationHistory
-    );
-    switch (state) {
-      case 'greeting':
-        this.handleGreeting(conversationHistory);
-        break;
-      default:
-        this.handleDefault(conversationHistory);
+  sendMessag_old(): void {
+    console.log('sendMessage called');
+    if (this.userInput.trim()) {
+      const userMessage: Message = {
+        type: 'user',
+        content: this.userInput,
+        timestamp: new Date(),
+        context: 'default', // Default context
+      };
+      console.log('User message created:', userMessage);
+
+      this.chatService
+        .saveMessage(userMessage)
+        .then(() => {
+          console.log('User message saved');
+          this.chatHistory.push(userMessage);
+
+          // Collect the conversation history
+          const conversationHistory = this.chatHistory.map((message) => ({
+            role: message.type === 'user' ? 'user' : 'assistant',
+            content: message.content,
+          }));
+
+          this.isTyping = true;
+
+          this.chatService
+            .analyzeMessage(userMessage.content)
+            .then((isMealRelated) => {
+              if (isMealRelated) {
+                // Set context to meal
+                this.chatHistory[this.chatHistory.length - 1].context = 'meal';
+                this.contextService.setContext(
+                  'conversationState',
+                  'processing'
+                );
+              } else {
+                this.contextService.setContext('conversationState', 'greeting');
+              }
+
+              this.chatService
+                .handleState(
+                  this.contextService.getContext('conversationState'),
+                  conversationHistory
+                )
+                .then((botMessage) => {
+                  this.chatHistory.push(botMessage);
+                  this.isTyping = false;
+                })
+                .catch((error) => {
+                  console.error('Error handling state:', error);
+                });
+            })
+            .catch((error) => {
+              console.error('Error analyzing message:', error);
+            });
+        })
+        .catch((error) => {
+          console.error('Error saving message:', error);
+        });
+
+      this.userInput = '';
     }
   }
 
-  private handleGreeting(
-    conversationHistory: { role: string; content: string }[]
-  ): void {
-    this.openaiService.getChatResponse(conversationHistory).then((response) => {
-      const botMessage: Message = {
-        type: 'bot',
-        content: response,
-        timestamp: new Date(),
-      };
-
-      this.chatService.saveMessage(botMessage).then(() => {
-        this.chatHistory.push(botMessage);
-        this.isTyping = false;
-        this.contextService.setContext('conversationState', 'collectingInfo');
-      });
-    });
-  }
-
-  private handleDefault(
-    conversationHistory: { role: string; content: string }[]
-  ): void {
-    this.openaiService.getChatResponse(conversationHistory).then((response) => {
-      const botMessage: Message = {
-        type: 'bot',
-        content: response,
-        timestamp: new Date(),
-      };
-
-      this.chatService.saveMessage(botMessage).then(() => {
-        this.chatHistory.push(botMessage);
-        this.isTyping = false;
-      });
-    });
+  ngOnDestroy(): void {
+    console.log('ngOnDestroy called');
+    this.unsubscribeFromMessages();
   }
 }

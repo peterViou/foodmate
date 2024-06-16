@@ -6,7 +6,8 @@
         *ngFor="let message of chatHistory"
         [ngClass]="{
           'user-message': message.type === 'user',
-          'bot-message': message.type === 'bot'
+          'bot-message': message.type === 'bot',
+          'meal-message': message.context === 'meal'
         }"
         class="message"
       >

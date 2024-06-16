@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { throwError } from 'rxjs';
+import { throwError, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -8,7 +8,13 @@ import { throwError } from 'rxjs';
 export class ErrorHandlerService {
   constructor() {}
 
-  handleError(error: any): string {
+  /**
+   * Handles the given error and returns an appropriate error message.
+   *
+   * @param {any} error - The error to handle.
+   * @returns {Observable<string>} - An observable containing the error message.
+   */
+  handleError(error: any): Observable<string> {
     let errorMessage = 'An unknown error occurred!';
 
     if (error instanceof HttpErrorResponse) {
@@ -40,6 +46,18 @@ export class ErrorHandlerService {
       errorMessage = error.message ? error.message : errorMessage;
     }
 
-    return errorMessage;
+    this.logError(errorMessage);
+    return throwError(errorMessage);
+  }
+
+  /**
+   * Logs the error message.
+   *
+   * @param {string} message - The error message to log.
+   */
+  private logError(message: string): void {
+    // Here you could send the error to your logging infrastructure
+    // For example, logging to a remote server
+    console.error(message); // Placeholder for logging logic
   }
 }
